@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.client.RestTemplate;
 
 import asm.dao.AccountDAO;
 import asm.dao.OrderDAO; // Thêm dòng này
@@ -21,6 +22,9 @@ import asm.entity.Account;
 import asm.entity.Order;
 import asm.entity.Product;
 import asm.utils.CartItems;
+import asm.dto.ProvinceDTO;
+import asm.dto.DistrictDTO;
+import asm.dto.WardDTO;
 
 @Controller
 @RequestMapping("/cart")
@@ -92,25 +96,100 @@ public class CartController {
 	}
 	
 	@PostMapping("/placeorder")
-	public String placeOrder(HttpSession session, RedirectAttributes ra) {
-	    CartItems cart = (CartItems) session.getAttribute("cart");
-	    Account user = (Account) session.getAttribute("user"); // Cast to Account type
+	public String placeOrder(
+	    HttpSession session, 
+	    RedirectAttributes ra,
+	    @RequestParam("fullName") String fullName,
+	    @RequestParam("phone") String phone,
+	    @RequestParam("email") String email,
+	    @RequestParam("province") String provinceCode,
+	    @RequestParam("district") String districtCode,
+	    @RequestParam("ward") String wardCode,
+	    @RequestParam("addressDetail") String addressDetail,
+	    @RequestParam(value = "payment", defaultValue = "cod") String payment) {
 	    
-	    if (cart != null && user != null) {
-	        // Create and save order
-	        Order order = new Order();
-	        order.setCreateDate(new Date());
-			// Get address from the cart or set a default address
-			order.setAddress("Default Address"); // Replace with actual address if available
-	        
-	        // Use the account object directly from session
-	        order.setAccount(user);
-	        
-	        orderDAO.save(order);
+	    CartItems cart = (CartItems) session.getAttribute("cart");
+	    Account user = (Account) session.getAttribute("user");
+	    
+	    if (cart == null || cart.getItems().isEmpty()) {
+	        ra.addFlashAttribute("message", "Giỏ hàng trống, không thể đặt hàng!");
+	        return "redirect:/cart/view";
 	    }
 	    
-	    session.removeAttribute("cart"); // Clear cart after order
-	    ra.addFlashAttribute("message", "Order placed successfully!");
-	    return "redirect:/";
+	    if (user == null) {
+	        ra.addFlashAttribute("message", "Vui lòng đăng nhập để đặt hàng!");
+	        return "redirect:/login";
+	    }
+	    
+	    try {
+	        // Lấy thông tin địa chỉ đầy đủ từ API
+	        RestTemplate restTemplate = new RestTemplate();
+	        String provinceUrl = "https://provinces.open-api.vn/api/p/" + provinceCode + "?depth=1";
+	        String districtUrl = "https://provinces.open-api.vn/api/d/" + districtCode + "?depth=1";
+	        String wardUrl = "https://provinces.open-api.vn/api/w/" + wardCode + "?depth=1";
+	        
+	        ProvinceDTO province = restTemplate.getForObject(provinceUrl, ProvinceDTO.class);
+	        DistrictDTO district = restTemplate.getForObject(districtUrl, DistrictDTO.class);
+	        WardDTO ward = restTemplate.getForObject(wardUrl, WardDTO.class);
+	        
+	        // Tạo địa chỉ đầy đủ
+	        StringBuilder fullAddress = new StringBuilder();
+	        fullAddress.append(fullName).append(" | ");
+	        fullAddress.append(phone).append(" | ");
+	        fullAddress.append(email).append(" | ");
+	        fullAddress.append(addressDetail).append(", ");
+	        
+	        if (ward != null) {
+	            fullAddress.append(ward.getName()).append(", ");
+	        }
+	        
+	        if (district != null) {
+	            fullAddress.append(district.getName()).append(", ");
+	        }
+	        
+	        if (province != null) {
+	            fullAddress.append(province.getName());
+	        }
+	        
+	        // Tạo và lưu đơn hàng
+	        Order order = new Order();
+	        order.setCreateDate(new Date());
+	        order.setAddress(fullAddress.toString());
+	        order.setAccount(user);
+	        
+	        // Nếu entity Order có trường status và paymentMethod, bạn có thể thêm
+	        // order.setStatus("Pending");
+	        // order.setPaymentMethod(payment);
+	        
+	        Order savedOrder = orderDAO.save(order);
+	        
+	        // Lưu chi tiết đơn hàng từ giỏ hàng
+	        // Bạn cần đảm bảo có OrderDetailDAO được autowired
+	        /*
+	        for (Object item : cart.getItems()) {
+	            // Chuyển đổi item thành Map
+	            @SuppressWarnings("unchecked")
+	            Map<String, Object> cartItem = (Map<String, Object>) item;
+	            
+	            OrderDetail detail = new OrderDetail();
+	            detail.setOrder(savedOrder);
+	            detail.setProduct((Product) cartItem.get("product"));
+	            detail.setPrice(((Product) cartItem.get("product")).getPrice());
+	            detail.setQuantity((Integer) cartItem.get("qty"));
+	            orderDetailDAO.save(detail);
+	        }
+	        */
+	        
+	        // Xóa giỏ hàng sau khi đặt hàng thành công
+	        session.removeAttribute("cart");
+	        
+	        ra.addFlashAttribute("message", "Đặt hàng thành công! Mã đơn hàng của bạn là: " + savedOrder.getId());
+	        return "redirect:/";
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        ra.addFlashAttribute("message", "Đặt hàng thất bại: " + e.getMessage());
+	        return "redirect:/cart/checkout/view";
+	    }
 	}
 }

@@ -177,7 +177,51 @@
         <div class="row px-xl-5">
             <div class="col-lg-8">
                 <div class="mb-4">
-                    <h4 class="font-weight-semi-bold mb-4">Billing Address</h4>
+                    <h4 class="font-weight-semi-bold mb-4">Thông tin giao hàng</h4>
+                    <form action="/cart/placeorder" method="post">
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label>Họ và Tên</label>
+                                <input class="form-control" type="text" name="fullName" placeholder="Nguyễn Văn A">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Số điện thoại</label>
+                                <input class="form-control" type="text" name="phone" placeholder="0912345678">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>E-mail</label>
+                                <input class="form-control" type="text" name="email" placeholder="example@email.com">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Tỉnh/Thành phố</label>
+                                <select class="custom-select" name="province">
+                                    <option selected>Chọn Tỉnh/Thành phố</option>
+                                    <c:forEach var="province" items="${provinces}">
+                                        <option value="${province.code}">${province.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Quận/Huyện</label>
+                                <select class="custom-select" name="district">
+                                    <option selected>Chọn Quận/Huyện</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Phường/Xã</label>
+                                <select class="custom-select" name="ward">
+                                    <option selected>Chọn Phường/Xã</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label>Địa chỉ cụ thể</label>
+                                <input class="form-control" type="text" name="addressDetail" placeholder="Số nhà, tên đường...">
+                            </div>
+                        </div>
+                    <!-- ...existing code... -->
+                </div>
+                <div class="collapse mb-4" id="shipping-address">
+                    <h4 class="font-weight-semi-bold mb-4">Shipping Address</h4>
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label>First Name</label>
@@ -239,57 +283,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="collapse mb-4" id="shipping-address">
-                    <h4 class="font-weight-semi-bold mb-4">Shipping Address</h4>
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label>First Name</label>
-                            <input class="form-control" type="text" placeholder="John">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Last Name</label>
-                            <input class="form-control" type="text" placeholder="Doe">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>E-mail</label>
-                            <input class="form-control" type="text" placeholder="example@email.com">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Mobile No</label>
-                            <input class="form-control" type="text" placeholder="+123 456 789">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Address Line 1</label>
-                            <input class="form-control" type="text" placeholder="123 Street">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Address Line 2</label>
-                            <input class="form-control" type="text" placeholder="123 Street">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Country</label>
-                            <select class="custom-select">
-                                <option>United States</option>
-                                <option>Afghanistan</option>
-                                <option>Albania</option>
-                                <option>Algeria</option>
-                                <option selected>Vietnam</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>City</label>
-                            <input class="form-control" type="text" placeholder="New York">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>State</label>
-                            <input class="form-control" type="text" placeholder="New York">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>ZIP Code</label>
-                            <input class="form-control" type="text" placeholder="123">
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="col-lg-4">
                 <div class="card border-secondary mb-5">
@@ -314,32 +307,31 @@
                 </div>
                 <div class="card border-secondary mb-5">
                     <div class="card-header bg-secondary border-0">
-                        <h4 class="font-weight-semi-bold m-0">Payment</h4>
+                        <h4 class="font-weight-semi-bold m-0">Phương thức thanh toán</h4>
                     </div>
                     <div class="card-body"> 
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="paypal">
-                                <label class="custom-control-label" for="paypal">Paypal</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="cod" checked>
+                                <label class="custom-control-label" for="cod">Thanh toán khi nhận hàng (COD)</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="directcheck">
-                                <label class="custom-control-label" for="directcheck">Direct Check</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="bankTransfer">
+                                <label class="custom-control-label" for="bankTransfer">Chuyển khoản ngân hàng</label>
                             </div>
                         </div>
-                        <div class="">
+                        <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer">
-                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="momo">
+                                <label class="custom-control-label" for="momo">Ví điện tử (MoMo, ZaloPay)</label>
                             </div>
                         </div>
                     </div>
-                    <form action="/cart/placeorder" method="post">
-                        <button type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3">
-                            Place Order
-                        </button>
+                    <button type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3">
+                        Đặt hàng
+                    </button>
                     </form>
                 </div>
             </div>
@@ -414,15 +406,102 @@
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/resources/lib/easing/easing.min.js"></script>
+    <script src="/resources/lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Contact Javascript File -->
-    <script src="mail/jqBootstrapValidation.min.js"></script>
-    <script src="mail/contact.js"></script>
+    <script src="/resources/mail/jqBootstrapValidation.min.js"></script>
+    <script src="/resources/mail/contact.js"></script>
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+    <script src="/resources/js/main.js"></script>
+    
+    <!-- Address Cascading Dropdown -->
+    <script>
+        $(document).ready(function() {
+            // Khi chọn tỉnh/thành phố
+            $('select[name="province"]').on('change', function() {
+                var provinceCode = $(this).val();
+                console.log("Đã chọn tỉnh/thành phố với mã: " + provinceCode);
+                
+                if(provinceCode && provinceCode !== 'Chọn Tỉnh/Thành phố') {
+                    // Hiển thị loading khi đang tải dữ liệu
+                    $('select[name="district"]').html('<option>Đang tải dữ liệu...</option>');
+                    
+                    $.ajax({
+                        url: '/api/address/districts/' + provinceCode,
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            console.log("Nhận được dữ liệu quận/huyện:", data);
+                            $('select[name="district"]').empty();
+                            $('select[name="district"]').append('<option selected>Chọn Quận/Huyện</option>');
+                            $('select[name="ward"]').empty();
+                            $('select[name="ward"]').append('<option selected>Chọn Phường/Xã</option>');
+                            
+                            // Kiểm tra nếu data không phải là array hoặc empty
+                            if (Array.isArray(data) && data.length > 0) {
+                                $.each(data, function(key, value) {
+                                    $('select[name="district"]').append('<option value="'+ value.code +'">'+ value.name +'</option>');
+                                });
+                            } else {
+                                $('select[name="district"]').append('<option>Không có dữ liệu</option>');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Lỗi khi lấy quận/huyện:", error);
+                            console.error("Response:", xhr.responseText);
+                            $('select[name="district"]').html('<option>Lỗi tải dữ liệu</option>');
+                        }
+                    });
+                } else {
+                    $('select[name="district"]').empty();
+                    $('select[name="district"]').append('<option selected>Chọn Quận/Huyện</option>');
+                    $('select[name="ward"]').empty();
+                    $('select[name="ward"]').append('<option selected>Chọn Phường/Xã</option>');
+                }
+            });
+            
+            // Khi chọn quận/huyện
+            $('select[name="district"]').on('change', function() {
+                var districtCode = $(this).val();
+                console.log("Đã chọn quận/huyện với mã: " + districtCode);
+                
+                if(districtCode && districtCode !== 'Chọn Quận/Huyện') {
+                    // Hiển thị loading khi đang tải dữ liệu
+                    $('select[name="ward"]').html('<option>Đang tải dữ liệu...</option>');
+                    
+                    $.ajax({
+                        url: '/api/address/wards/' + districtCode,
+                        type: "GET",
+                        dataType: "json",
+                        success: function(data) {
+                            console.log("Nhận được dữ liệu phường/xã:", data);
+                            $('select[name="ward"]').empty();
+                            $('select[name="ward"]').append('<option selected>Chọn Phường/Xã</option>');
+                            
+                            // Kiểm tra nếu data không phải là array hoặc empty
+                            if (Array.isArray(data) && data.length > 0) {
+                                $.each(data, function(key, value) {
+                                    $('select[name="ward"]').append('<option value="'+ value.code +'">'+ value.name +'</option>');
+                                });
+                            } else {
+                                $('select[name="ward"]').append('<option>Không có dữ liệu</option>');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Lỗi khi lấy phường/xã:", error);
+                            console.error("Response:", xhr.responseText);
+                            $('select[name="ward"]').html('<option>Lỗi tải dữ liệu</option>');
+                        }
+                    });
+                } else {
+                    $('select[name="ward"]').empty();
+                    $('select[name="ward"]').append('<option selected>Chọn Phường/Xã</option>');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
